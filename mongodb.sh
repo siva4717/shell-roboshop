@@ -6,7 +6,6 @@ Y="\e[33m"
 N="\e[0m"
 FILE_LOG_DIRECTORY="/var/log/shell-roboshop/"
 SCRIPT_NAME=$(echo $0 | cut -d '.' -f1)
-SCRIPT_DIRECTORY=$pwd
 FILE_LOG=$FILE_LOG_DIRECTORY/$SCRIPT_NAME.log
 mkdir -p $FILE_LOG_DIRECTORY 
 echo -e "$G The script Started at ::: $(date)$N"
@@ -25,7 +24,7 @@ VALIDATE(){
     fi
 }
 
-cp $SCRIPT_DIRECTORY/mongo.repo /etc/yum.repos.d/mongo.repo
+cp mongo.repo /etc/yum.repos.d/mongo.repo
 VALIDATE $? "Adding mongo repo" &>>$FILE_LOG
 dnf install mongodb-org -y &>>$FILE_LOG
 VALIDATE $? "mongodb" &>>$FILE_LOG
