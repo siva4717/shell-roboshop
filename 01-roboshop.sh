@@ -6,9 +6,9 @@ for instance in $@
 do
     INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --instance-type t3.micro --security-group-ids $SG_ID --count 1 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=$instance}]' --query 'Instances[0].InstanceId' --output text)
     if [ instance != "frontend" ]; then
-        IP=$(aws ec2 describe-instances --instance-ids i-06b537b7fda817827 --query 'Reservations[*].Instances[*].PrivateIpAddress' --output text)
+        IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[*].Instances[*].PrivateIpAddress' --output text)
     else
-        IP=$(aws ec2 describe-instances --instance-ids i-06b537b7fda817827 --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+        IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
     fi
     echo "IP:$IP"
 
