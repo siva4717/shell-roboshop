@@ -41,6 +41,7 @@ cd /app
 unzip /tmp/catalogue.zip
 VALIDATE $? "unzip"
 cd /app 
+cp $SCRIPT_DIRECTORY/catalogue.service /etc/systemd/system/catalogue.service
 npm install 
 VALIDATE $? "npm install"
 systemctl daemon-reload
