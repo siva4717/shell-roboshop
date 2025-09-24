@@ -28,7 +28,7 @@ do
             ,"Type"             : "A"
             ,"TTL"              : 1
             ,"ResourceRecords"  : [{
-                "Value"         : "'" $DOMIAN_NAME "'"
+                "Value"         : "'" $IP "'"
             }]
         }
         }]
