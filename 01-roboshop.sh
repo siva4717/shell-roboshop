@@ -2,6 +2,7 @@
 AMI_ID="ami-09c813fb71547fc4f"
 SG_ID="sg-0ad4f00017b011267"
 HOSTED_ZONE="Z043346914G8XVEOOX7JH"
+
 DOMIAN_NAME="msgd.fun"
 
 for instance in $@
@@ -24,11 +25,11 @@ do
         ,"Changes": [{
         "Action"              : "UPSERT"
         ,"ResourceRecordSet"  : {
-            "Name"              : "$RECORD_NAME"
+            "Name"              : "'$RECORD_NAME'"
             ,"Type"             : "A"
             ,"TTL"              : 1
             ,"ResourceRecords"  : [{
-                "Value"         : " '$IP' "
+                "Value"         : "'$IP' "
             }]
         }
         }]
