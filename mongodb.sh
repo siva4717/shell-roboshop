@@ -25,7 +25,7 @@ VALIDATE(){
     fi
 }
 
-cp $SCRIPT_DIRECTORY/mongo.repo vim /etc/yum.repos.d/mongo.repo
+cp $SCRIPT_DIRECTORY/mongo.repo /etc/yum.repos.d/mongo.repo
 VALIDATE $? "Adding mongo repo" &>>$FILE_LOG
 dnf install mongodb-org -y &>>$FILE_LOG
 VALIDATE $? "mongodb" &>>$FILE_LOG
