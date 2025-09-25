@@ -6,7 +6,7 @@ Y="\e[33m"
 N="\e[0m"
 FILE_LOG_DIRECTORY="/var/log/shell-roboshop/"
 SCRIPT_NAME=$(echo $0 | cut -d '.' -f1)
-SCRIPT_DIRECTORY=$pwd
+SCRIPT_DIRECTORY=$PWD
 FILE_LOG=$FILE_LOG_DIRECTORY/$SCRIPT_NAME.log
 MONGODB_SERVER="mongodb.msgd.fun"
 mkdir -p $FILE_LOG_DIRECTORY 
