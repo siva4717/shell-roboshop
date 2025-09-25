@@ -26,34 +26,37 @@ VALIDATE(){
     fi
 }
 
-dnf module disable nodejs -y
-VALIDATE $? "Disable nodejs"
-dnf module enable nodejs:20 -y
+dnf module disable nodejs -y &>>$FILE_LOG
+VALIDATE $? "Disable nodejs" &>>$FILE_LOG
+dnf module enable nodejs:20 -y &>>$FILE_LOG
 VALIDATE $? "Enable nodejs:20"
-dnf install nodejs -y
+dnf install nodejs -y &>>$FILE_LOG
 VALIDATE $? "Installing nodejs"
-useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$FILE_LOG
 VALIDATE $? "create system user"
-mkdir -p /app 
+mkdir -p /app  &>>$FILE_LOG
 VALIDATE $? "create directory"
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
-cd /app 
-unzip /tmp/catalogue.zip
+curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$FILE_LOG
+cd /app  &>>$FILE_LOG
+unzip /tmp/catalogue.zip v
 VALIDATE $? "unzip"
-cd /app 
-cp $SCRIPT_DIRECTORY/catalogue.service /etc/systemd/system/catalogue.service
-npm install 
-VALIDATE $? "npm install"
-systemctl daemon-reload
+cd /app &>>$FILE_LOG
+cp $SCRIPT_DIRECTORY/catalogue.service /etc/systemd/system/catalogue.service &>>$FILE_LOG
+npm install &>>$FILE_LOG
+VALIDATE $? "npm install" &>>$FILE_LOG
+systemctl daemon-reload &>>$FILE_LOG
 VALIDATE $? "Daemon reload"
-systemctl enable catalogue 
-VALIDATE $? "enable catalogue"
-systemctl start catalogue
+systemctl enable catalogue &>>$FILE_LOG
+VALIDATE $? "enable catalogue" 
+systemctl start catalogue &>>$FILE_LOG
 VALIDATE $? "start catalogue"
-cp $SCRIPT_DIRECTORY/mongo.repo /etc/yum.repos.d/mongo.repo
+cp $SCRIPT_DIRECTORY/mongo.repo /etc/yum.repos.d/mongo.repo &>>$FILE_LOG
 VALIDATE $? "adding mongo repo"
-dnf install mongodb-mongosh -y
+dnf install mongodb-mongosh -y &>>$FILE_LOG
 VALIDATE $? "Installing mongosh"
-mongosh --host $MONGODB_SERVER </app/db/master-data.js
-systemctl restart catalogue
+mongosh --host $MONGODB_SERVER </app/db/master-data.js &>>$FILE_LOG
+VALIDATE $? "systemctl restart"
+mongosh --host $MONGODB_SERVER &>>$FILE_LOG
+VALIDATE $? "systemctl restart"
+systemctl restart catalogue &>>$FILE_LOG
 VALIDATE $? "systemctl restart"
