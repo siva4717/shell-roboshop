@@ -78,10 +78,10 @@ VALIDATE $? "Installing mongosh"
 
 INDEX=$(mongosh mongodb.msgd.fun --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')")
 if [ $INDEX -le 0 ]; then
-    mongosh --host $MONGODB_SERVER </app/db/master-data.js &>>$FILE_LOG
-    VALIDATE $? "monosh server"
+    mongosh --host $MONGODB_SERVER </app/db/master-data.js &>>$LOG_FILE
+    VALIDATE $? "Load catalogue products"
 else
-    echo -e " $G Loading carts are already created $N ... $Y Skip $N"
+    echo -e "Catalogue products already loaded ... $Y SKIPPING $N"
 fi
 
 systemctl restart catalogue  &>>$FILE_LOG  
