@@ -38,7 +38,7 @@ mkdir -p /app  &>>$FILE_LOG
 VALIDATE $? "create directory"
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$FILE_LOG
 cd /app  &>>$FILE_LOG
-unzip /tmp/catalogue.zip v
+unzip /tmp/catalogue.zip 
 VALIDATE $? "unzip"
 cd /app &>>$FILE_LOG
 cp $SCRIPT_DIRECTORY/catalogue.service /etc/systemd/system/catalogue.service &>>$FILE_LOG
@@ -58,5 +58,5 @@ mongosh --host $MONGODB_SERVER </app/db/master-data.js &>>$FILE_LOG
 VALIDATE $? "systemctl restart"
 mongosh --host $MONGODB_SERVER &>>$FILE_LOG
 VALIDATE $? "systemctl restart"
-systemctl restart catalogue &>>$FILE_LOG
+systemctl restart catalogue &>>$FILE_LOG    
 VALIDATE $? "systemctl restart"
