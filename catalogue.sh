@@ -52,7 +52,7 @@ cd /app  &>>$FILE_LOG
 rm -rf /app/*
 VALIDATE $? "removing existing code"
 
-unzip /tmp/catalogue.zip 
+unzip /tmp/catalogue.zip  &>>$FILE_LOG
 VALIDATE $? "unzip"
 
 cd /app 
@@ -76,8 +76,13 @@ VALIDATE $? "adding mongo repo"
 dnf install mongodb-mongosh -y &>>$FILE_LOG
 VALIDATE $? "Installing mongosh"
 
-mongosh --host $MONGODB_SERVER </app/db/master-data.js &>>$FILE_LOG
-VALIDATE $? "systemctl restart"
+INDEX=$(mongosh mongodb.msgd.fun --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')")
+if [ $INDEX -ne 0 ]; then
+    mongosh --host $MONGODB_SERVER </app/db/master-data.js &>>$FILE_LOG
+    VALIDATE $? "monosh server"
+else
+    echo -e " $G Loading carts are already created $N ... $Y Skip $N"
+fi
 
 systemctl restart catalogue  &>>$FILE_LOG  
 VALIDATE $? "systemctl restart"
