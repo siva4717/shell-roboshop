@@ -28,12 +28,20 @@ VALIDATE(){
 
 dnf module disable nodejs -y &>>$FILE_LOG
 VALIDATE $? "Disable nodejs" &>>$FILE_LOG
+
 dnf module enable nodejs:20 -y &>>$FILE_LOG
 VALIDATE $? "Enable nodejs:20"
+
 dnf install nodejs -y &>>$FILE_LOG
 VALIDATE $? "Installing nodejs"
-useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$FILE_LOG
-VALIDATE $? "create system user"
+
+if [ $? -ne 0 ]; then
+    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$FILE_LOG
+    VALIDATE $? "create system user"
+else
+    echo -e " $Y System user is already created $N"
+fi
+
 mkdir -p /app  &>>$FILE_LOG
 VALIDATE $? "create directory"
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$FILE_LOG
