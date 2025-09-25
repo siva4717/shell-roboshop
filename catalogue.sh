@@ -14,7 +14,7 @@ echo -e "$G The script Started at ::: $(date)$N"
 
 if [ $USER_ID -ne 0 ]; then 
     echo -e " $R You can use root user $N" 
-    exit 1
+    exit 1  
     
 fi
 
@@ -79,8 +79,5 @@ VALIDATE $? "Installing mongosh"
 mongosh --host $MONGODB_SERVER </app/db/master-data.js &>>$FILE_LOG
 VALIDATE $? "systemctl restart"
 
-mongosh --host $MONGODB_SERVER &>>$FILE_LOG
-VALIDATE $? "systemctl restart"
-
-systemctl restart catalogue &>>$FILE_LOG    
+systemctl restart catalogue  &>>$FILE_LOG  
 VALIDATE $? "systemctl restart"
