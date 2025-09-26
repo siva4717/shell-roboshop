@@ -32,7 +32,7 @@ systemctl enable mongod &>>$FILE_LOG
 VALIDATE $? "Systemctl enable"  
 systemctl start mongod &>>$FILE_LOG
 VALIDATE $? "Systemctl start" 
-sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mongod.conf &>>$FILE_LOG
+sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mongod.conf &>>$FILE_LOG    
 VALIDATE $? "allowing remote connections mongodb" 
 systemctl restart mongod &>>$FILE_LOG
 VALIDATE $? "Systemctl restart" 
