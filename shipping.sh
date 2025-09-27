@@ -55,7 +55,7 @@ cd /app
 cp $SCRIPT_DIRECTORY/shipping.service /etc/systemd/system/shipping.service 
 
 
-mvn clean package 
+mvn clean package &>>$FILE_LOG
 VALIDATE $? "mvn clean package" 
 
 mv target/shipping-1.0.jar shipping.jar  
