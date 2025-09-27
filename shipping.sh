@@ -45,20 +45,20 @@ VALIDATE $? "create directory"
 curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip &>>$FILE_LOG
 cd /app  &>>$FILE_LOG
 
-rm -rf /app/* &>>$LOG_FILE
+rm -rf /app/* 
 VALIDATE $? "removing existing code"
 
 unzip /tmp/shipping.zip  &>>$FILE_LOG
 VALIDATE $? "unzip"
 
-cd /app  &>>$LOG_FILE
-cp $SCRIPT_DIRECTORY/shipping.service /etc/systemd/system/shipping.service &>>$LOG_FILE
+cd /app 
+cp $SCRIPT_DIRECTORY/shipping.service /etc/systemd/system/shipping.service 
 
 
-mvn clean package  &>>$LOG_FILE
+mvn clean package 
 VALIDATE $? "mvn clean package" 
 
-mv target/shipping-1.0.jar shipping.jar  &>>$LOG_FILE
+mv target/shipping-1.0.jar shipping.jar  
 VALIDATE $? "move the shipping.jar file"
 
 systemctl daemon-reload &>>$FILE_LOG
