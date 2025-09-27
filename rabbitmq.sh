@@ -10,7 +10,7 @@ FILE_LOG_DIRECTORY="/var/log/shell-roboshop/"
 SCRIPT_NAME=$(echo $0 | cut -d '.' -f1)
 FILE_LOG=$FILE_LOG_DIRECTORY/$SCRIPT_NAME.log
 SCRIPT_DIRECTORY=$PWD
-
+mkdir -p $FILE_LOG_DIRECTORY 
 echo -e "$G The script Started at ::: $(date)$N"
 
 if [ $USER_ID -ne 0 ]; then 
@@ -27,7 +27,7 @@ VALIDATE(){
     fi
 }
 
-cp $SCRIPT_DIRECTORY/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo  
+cp $SCRIPT_DIRECTORY/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo  &>>$FILE_LOG
 VALIDATE $? "rabbitmq-repo"
 
 dnf install rabbitmq-server -y &>>$FILE_LOG
