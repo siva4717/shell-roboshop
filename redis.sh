@@ -28,24 +28,19 @@ VALIDATE(){
     fi
 }
 
-dnf module disable redis -y
+dnf module disable redis -y &>>$FILE_LOG
 VALIDATE $? "Disable Redis"
 
-dnf module enable redis:7 -y
+dnf module enable redis:7 -y &>>$FILE_LOG
 VALIDATE $? "Enable Redis"
 
-sed -i -e "s/127.0.0.1/0.0.0.0/g" /etc/redis/redis.conf &>>$FILE_LOG
-VALIDATE $? "Change ip address 0.0.0.0"
+sed -i -e 's/127.0.0.1/0.0.0.0/h' -e '/protected-mode/ c protected-mode no' /etc/redis/redis.conf &>>$FILE_LOG
+VALIDATE $? "Allowing remote connections and protected-mode no"
 
-#sed -i -e 's/127.0.0.1/0.0.0.0/g' -e '/protected-mode/ c protected-mode no' /etc/redis/redis.conf
-
-sed -i -e "s/protected-mode yes/protected-mode no/g" /etc/redis/redis.conf &>>$FILE_LOG
-VALIDATE $? "Change protected-mode yes"
-
-systemctl enable redis 
+systemctl enable redis &>>$FILE_LOG
 VALIDATE $? "Enable Redis"
 
-systemctl start redis 
+systemctl start redis  &>>$FILE_LOG
 VALIDATE $? "Start Redis"
 
 END_TIME=$(date +%s)
