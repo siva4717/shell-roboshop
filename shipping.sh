@@ -45,20 +45,20 @@ VALIDATE $? "create directory"
 curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip &>>$FILE_LOG
 cd /app  &>>$FILE_LOG
 
-rm -rf /app/*
+rm -rf /app/* &>>$LOG_FILE
 VALIDATE $? "removing existing code"
 
 unzip /tmp/shipping.zip  &>>$FILE_LOG
 VALIDATE $? "unzip"
 
-cd /app 
-cp $SCRIPT_DIRECTORY/shipping.service /etc/systemd/system/shipping.service
+cd /app  &>>$LOG_FILE
+cp $SCRIPT_DIRECTORY/shipping.service /etc/systemd/system/shipping.service &>>$LOG_FILE
 
 
-mvn clean package 
-VALIDATE $? "mvn clean package"
+mvn clean package  &>>$LOG_FILE
+VALIDATE $? "mvn clean package" 
 
-mv target/shipping-1.0.jar shipping.jar 
+mv target/shipping-1.0.jar shipping.jar  &>>$LOG_FILE
 VALIDATE $? "move the shipping.jar file"
 
 systemctl daemon-reload &>>$FILE_LOG
@@ -72,11 +72,11 @@ VALIDATE $? "start shipping"
 
 dnf install mysql -y  &>>$FILE_LOG
 
-mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities' &>>$LOG_FILE
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities' 
 if [ $? -ne 0 ]; then
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql &>>$LOG_FILE
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql  &>>$LOG_FILE
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql &>>$LOG_FILE
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql 
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql  
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql 
 else
     echo -e "Shipping data is already loaded ... $Y SKIPPING $N"
 fi
