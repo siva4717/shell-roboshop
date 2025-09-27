@@ -1,57 +1,44 @@
-#?/bin/bash
+#!/bin/bash
 
-START_TIME=$(date +%s)
-USER_ID=$(id -u)
+USERID=$(id -u)
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
-FILE_LOG_DIRECTORY="/var/log/shell-roboshop/"
-SCRIPT_NAME=$(echo $0 | cut -d '.' -f1)
-FILE_LOG=$FILE_LOG_DIRECTORY/$SCRIPT_NAME.log
-SCRIPT_DIRECTORY=$PWD
-mkdir -p $FILE_LOG_DIRECTORY 
-echo -e "$G The script Started at ::: $(date)$N"
 
-if [ $USER_ID -ne 0 ]; then 
-    echo -e " $R You can use root user $N" 
-    exit 1  
-    
+LOGS_FOLDER="/var/log/shell-roboshop"
+SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
+LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log" # /var/log/shell-script/16-logs.log
+START_TIME=$(date +%s)
+mkdir -p $LOGS_FOLDER
+SCRIPT_DIR=$PWD
+echo "Script started executed at: $(date)" | tee -a $LOG_FILE
+
+if [ $USERID -ne 0 ]; then
+    echo "ERROR:: Please run this script with root privelege"
+    exit 1 # failure is other than 0
 fi
 
-VALIDATE(){
+VALIDATE(){ # functions receive inputs through args just like shell script args
     if [ $1 -ne 0 ]; then
-        echo -e " $2 ... $R failure $N "
+        echo -e "$2 ... $R FAILURE $N" | tee -a $LOG_FILE
+        exit 1
     else
-        echo -e " $2 ... $G success $N "
+        echo -e "$2 ... $G SUCCESS $N" | tee -a $LOG_FILE
     fi
 }
 
-cp $SCRIPT_DIRECTORY/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo  &>>$FILE_LOG
-VALIDATE $? "rabbitmq-repo"
-
-dnf install rabbitmq-server -y &>>$FILE_LOG
-VALIDATE $? "install rabbitmq-server"
-
-systemctl enable rabbitmq-server &>>$FILE_LOG
-VALIDATE $? "Enable rabbitmq-server"
-
-systemctl start rabbitmq-server &>>$FILE_LOG
-VALIDATE $? "start rabbitmq-server"
-
-
-id roboshop &>> $FILE_LOG
-if [ $? -ne 0 ]; then
-    rabbitmqctl add_user roboshop roboshop123
-    VALIDATE $? "rabbitmqctl add_user roboshop roboshop123"
-    rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
-    VALIDATE $? "rabbitmqctl set_permissions"
-else
-    echo -e " $Y roboshop user is already created $N"
-fi
-
-
-
+cp $SCRIPT_DIR/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo &>>$LOG_FILE
+VALIDATE $? "Adding RabbitMQ repo"
+dnf install rabbitmq-server -y &>>$LOG_FILE
+VALIDATE $? "Installing RabbitMQ Server"
+systemctl enable rabbitmq-server &>>$LOG_FILE
+VALIDATE $? "Enabling RabbitMQ Server"
+systemctl start rabbitmq-server &>>$LOG_FILE
+VALIDATE $? "Starting RabbitMQ"
+rabbitmqctl add_user roboshop roboshop123 &>>$LOG_FILE
+rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*" &>>$LOG_FILE
+VALIDATE $? "Setting up permissions"
 
 END_TIME=$(date +%s)
 TOTAL_TIME=$(( $END_TIME - $START_TIME ))
