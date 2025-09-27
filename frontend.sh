@@ -26,6 +26,8 @@ VALIDATE(){
     fi
 }
 
+cp SCRIPT_DIRECTORY/nginx.conf /etc/nginx/nginx.conf &>> $FILE_LOG
+
 dnf module disable nginx -y &>> $FILE_LOG
 VALIDATE $? "Disable NGINX"
 
@@ -53,7 +55,7 @@ VALIDATE $? "change directory"
 unzip /tmp/frontend.zip &>> $FILE_LOG
 VALIDATE $? "Unzip frontend.zip"
 
-cp SCRIPT_DIRECTORY/nginx.conf /etc/nginx/nginx.conf
+
 
 systemctl restart nginx  &>> $FILE_LOG
 VALIDATE $? "Restart    NGINX"
