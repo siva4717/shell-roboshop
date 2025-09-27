@@ -8,7 +8,6 @@ Y="\e[33m"
 N="\e[0m"
 FILE_LOG_DIRECTORY="/var/log/shell-roboshop/"
 SCRIPT_NAME=$(echo $0 | cut -d '.' -f1)
-SCRIPT_DIRECTORY=$PWD
 FILE_LOG=$FILE_LOG_DIRECTORY/$SCRIPT_NAME.log
 
 mkdir -p $FILE_LOG_DIRECTORY 
@@ -34,7 +33,7 @@ VALIDATE $? "Disable Redis"
 dnf module enable redis:7 -y &>>$FILE_LOG
 VALIDATE $? "Enable Redis"
 
-sed -i -e 's/127.0.0.1/0.0.0.0/h' -e '/protected-mode/ c protected-mode no' /etc/redis/redis.conf &>>$FILE_LOG
+sed -i -e 's/127.0.0.1/0.0.0.0/' -e '/protected-mode/ c protected-mode no' /etc/redis/redis.conf &>>$FILE_LOG  
 VALIDATE $? "Allowing remote connections and protected-mode no"
 
 systemctl enable redis &>>$FILE_LOG
