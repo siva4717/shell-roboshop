@@ -54,7 +54,7 @@ VALIDATE $? "unzip"
 cd /app 
 cp $SCRIPT_DIRECTORY/payment.service /etc/systemd/system/payment.service 
 
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt &>>$FILE_LOG
 VALIDATE $? "mvn clean package" 
 
 
