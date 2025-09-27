@@ -1,6 +1,6 @@
 #?/bin/bash
 AMI_ID="ami-09c813fb71547fc4f"
-SG_ID="sg-0ad4f00017b011267"
+SG_ID="sg-0a2cc58738c1fdf51"
 HOSTED_ZONE="Z043346914G8XVEOOX7JH"
 
 DOMIAN_NAME="msgd.fun"
