@@ -1,61 +1,52 @@
-#?/bin/bash
-USER_ID=$(id -u)
+#!/bin/bash
+
+USERID=$(id -u)
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
-FILE_LOG_DIRECTORY="/var/log/shell-roboshop/"
-SCRIPT_NAME=$(echo $0 | cut -d '.' -f1)
-SCRIPT_DIRECTORY=$PWD
-FILE_LOG=$FILE_LOG_DIRECTORY/$SCRIPT_NAME.log
 
-mkdir -p $FILE_LOG_DIRECTORY 
-echo -e "$G The script Started at ::: $(date)$N"
+LOGS_FOLDER="/var/log/shell-roboshop"
+SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
+SCRIPT_DIR=$PWD
+MONGODB_HOST=mongodb.msgd.fun
+LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log" # /var/log/shell-script/16-logs.log
 
-if [ $USER_ID -ne 0 ]; then 
-    echo -e " $R You can use root user $N" 
-    exit 1  
-    
+mkdir -p $LOGS_FOLDER
+echo "Script started executed at: $(date)" | tee -a $LOG_FILE
+
+if [ $USERID -ne 0 ]; then
+    echo "ERROR:: Please run this script with root privelege"
+    exit 1 # failure is other than 0
 fi
 
-VALIDATE(){
+VALIDATE(){ # functions receive inputs through args just like shell script args
     if [ $1 -ne 0 ]; then
-        echo -e " $2 ... $R failure $N "
+        echo -e "$2 ... $R FAILURE $N" | tee -a $LOG_FILE
+        exit 1
     else
-        echo -e " $2 ... $G success $N "
+        echo -e "$2 ... $G SUCCESS $N" | tee -a $LOG_FILE
     fi
 }
 
-cp SCRIPT_DIRECTORY/nginx.conf /etc/nginx/nginx.conf &>> $FILE_LOG
+dnf module disable nginx -y &>>$LOG_FILE
+dnf module enable nginx:1.24 -y &>>$LOG_FILE
+dnf install nginx -y &>>$LOG_FILE
+VALIDATE $? "Installing Nginx"
 
-dnf module disable nginx -y &>> $FILE_LOG
-VALIDATE $? "Disable NGINX"
+systemctl enable nginx  &>>$LOG_FILE
+systemctl start nginx 
+VALIDATE $? "Starting Nginx"
 
-dnf module enable nginx:1.24 -y &>> $FILE_LOG
-VALIDATE $? "Enable NGINX version 1.24"
+rm -rf /usr/share/nginx/html/* 
+curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>>$LOG_FILE
+cd /usr/share/nginx/html 
+unzip /tmp/frontend.zip &>>$LOG_FILE
+VALIDATE $? "Downloading frontend"
 
-dnf install nginx -y &>> $FILE_LOG
-VALIDATE $? "Installing NGINX"
+rm -rf /etc/nginx/nginx.conf
+cp $SCRIPT_DIR/nginx.conf /etc/nginx/nginx.conf
+VALIDATE $? "Copying nginx.conf"
 
-systemctl enable nginx  &>> $FILE_LOG
-VALIDATE $? "Enable NGINX"
-
-systemctl start nginx &>> $FILE_LOG 
-VALIDATE $? "Start NGINX"
-
-rm -rf /usr/share/nginx/html/*  &>> $FILE_LOG
-VALIDATE $? " Remove NGINX html file"
-
-curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>> $FILE_LOG
-VALIDATE $? "Downloading the frontend zip file"
-
-cd /usr/share/nginx/html &>> $FILE_LOG
-VALIDATE $? "change directory"
-
-unzip /tmp/frontend.zip &>> $FILE_LOG
-VALIDATE $? "Unzip frontend.zip"
-
-
-
-systemctl restart nginx  &>> $FILE_LOG
-VALIDATE $? "Restart    NGINX"
+systemctl restart nginx 
+VALIDATE $? "Restarting Nginx"
