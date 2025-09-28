@@ -44,11 +44,11 @@ else
     echo -e " $Y System user is already created $N"
 fi
 
-mkdir -p /app  &>>$FILE_LOG
+mkdir -p /app  
 VALIDATE $? "create directory"
 
-curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip &>>$FILE_LOG
-cd /app  &>>$FILE_LOG
+curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip 
+cd /app  
 
 rm -rf /app/*
 VALIDATE $? "removing existing code"
