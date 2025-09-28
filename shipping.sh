@@ -1,77 +1,68 @@
-#?/bin/bash
-START_TIME=$(date +%s)
-USER_ID=$(id -u)
+#!/bin/bash
+
+USERID=$(id -u)
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
-FILE_LOG_DIRECTORY="/var/log/shell-roboshop/"
-SCRIPT_NAME=$(echo $0 | cut -d '.' -f1)
-SCRIPT_DIRECTORY=$PWD
-FILE_LOG=$FILE_LOG_DIRECTORY/$SCRIPT_NAME.log
-MYSQL_HOST="mysql.msgd.fun"
-mkdir -p $FILE_LOG_DIRECTORY 
-echo -e "$G The script Started at ::: $(date)$N"
 
-if [ $USER_ID -ne 0 ]; then 
-    echo -e " $R You can use root user $N" 
-    exit 1  
-    
+LOGS_FOLDER="/var/log/shell-roboshop"
+SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
+SCRIPT_DIR=$PWD
+MONGODB_HOST=mongodb.msgd.fun
+LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log" # /var/log/shell-script/16-logs.log
+MYSQL_HOST=mysql.daws86s.fun
+
+mkdir -p $LOGS_FOLDER
+echo "Script started executed at: $(date)" | tee -a $LOG_FILE
+
+if [ $USERID -ne 0 ]; then
+    echo "ERROR:: Please run this script with root privelege"
+    exit 1 # failure is other than 0
 fi
 
-VALIDATE(){
+VALIDATE(){ # functions receive inputs through args just like shell script args
     if [ $1 -ne 0 ]; then
-        echo -e " $2 ... $R failure $N "
+        echo -e "$2 ... $R FAILURE $N" | tee -a $LOG_FILE
+        exit 1
     else
-        echo -e " $2 ... $G success $N "
+        echo -e "$2 ... $G SUCCESS $N" | tee -a $LOG_FILE
     fi
 }
 
+dnf install maven -y &>>$LOG_FILE
 
-dnf install maven -y &>>$FILE_LOG
-VALIDATE $? "Installing maven"
-
-id roboshop &>> $FILE_LOG
+id roboshop &>>$LOG_FILE
 if [ $? -ne 0 ]; then
-    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$FILE_LOG
-    VALIDATE $? "create system user"
+    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$LOG_FILE
+    VALIDATE $? "Creating system user"
 else
-    echo -e " $Y System user is already created $N"
+    echo -e "User already exist ... $Y SKIPPING $N"
 fi
 
-mkdir -p /app  &>>$FILE_LOG
-VALIDATE $? "create directory"
+mkdir -p /app
+VALIDATE $? "Creating app directory"
 
-curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip &>>$FILE_LOG
-cd /app  &>>$FILE_LOG
-
-rm -rf /app/* 
-VALIDATE $? "removing existing code"
-
-unzip /tmp/shipping.zip  &>>$FILE_LOG
-VALIDATE $? "unzip"
+curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip &>>$LOG_FILE
+VALIDATE $? "Downloading shipping application"
 
 cd /app 
-cp $SCRIPT_DIRECTORY/shipping.service /etc/systemd/system/shipping.service 
+VALIDATE $? "Changing to app directory"
 
+rm -rf /app/*
+VALIDATE $? "Removing existing code"
 
-mvn clean package &>>$FILE_LOG
-VALIDATE $? "mvn clean package" 
+unzip /tmp/shipping.zip &>>$LOG_FILE
+VALIDATE $? "unzip shipping"
 
-mv target/shipping-1.0.jar shipping.jar  
-VALIDATE $? "move the shipping.jar file"
+mvn clean package  &>>$LOG_FILE
+mv target/shipping-1.0.jar shipping.jar 
 
-systemctl daemon-reload &>>$FILE_LOG
-VALIDATE $? "Daemon reload"
+cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service
+systemctl daemon-reload
+systemctl enable shipping  &>>$LOG_FILE
 
-systemctl enable shipping &>>$FILE_LOG
-VALIDATE $? "enable shipping" 
-
-systemctl start shipping &>>$FILE_LOG
-VALIDATE $? "start shipping"
-
-dnf install mysql -y  &>>$FILE_LOG
-
+dnf install mysql -y  &>>$LOG_FILE
 
 mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities' &>>$LOG_FILE
 if [ $? -ne 0 ]; then
@@ -82,8 +73,4 @@ else
     echo -e "Shipping data is already loaded ... $Y SKIPPING $N"
 fi
 
-systemctl restart shipping &>>$FILE_LOG
-
-END_TIME=$(date +%s)
-TOTAL_TIME=$(( $END_TIME - $START_TIME ))
-echo -e "Script executed in: $Y $TOTAL_TIME Seconds $N"
+systemctl restart shipping
